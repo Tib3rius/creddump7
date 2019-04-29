@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with creddump.  If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable=invalid-name,missing-docstring
+
 """
 @author:       Brendan Dolan-Gavitt
 @license:      GNU General Public License 2.0 or later
@@ -27,7 +29,8 @@ from framework.win32.lsasecrets import get_file_secrets
 # Hex dump code from
 # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/142812
 
-FILTER=''.join(i >= 32 and i < 127 and chr(i) or '.' for i in range(256))
+FILTER = ''.join(32 <= i < 127 and chr(i) or '.' for i in range(256))
+
 
 def showUsage():
     print("usage: %s <system hive> <security hive> <Vista/7>" % sys.argv[0])
@@ -38,20 +41,22 @@ def showUsage():
 
 
 def dump(src, length=8):
-    N=0; result=''
+    N = 0
+    result = ''
     while src:
-       s,src = src[:length],src[length:]
-       hexa = ' '.join(["%02X"%x for x in s])
-       s = ''.join(FILTER[b] for b in s)
-       result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
-       N+=length
+        s, src = src[:length], src[length:]
+        hexa = ' '.join(["%02X" % x for x in s])
+        s = ''.join(FILTER[b] for b in s)
+        result += "%04X   %-*s   %s\n" % (N, length * 3, hexa, s)
+        N += length
     return result
 
-if len(sys.argv) < 4 or sys.argv[3] not in ["true", "false"]:
+
+if len(sys.argv) < 4 or sys.argv[3].lower() not in ["true", "false"]:
     showUsage()
     sys.exit(1)
 else:
-    vista = True if sys.argv[3] == "true" else False
+    vista = sys.argv[3].lower() == "true"
 
 secrets = get_file_secrets(sys.argv[1], sys.argv[2], vista)
 if not secrets:

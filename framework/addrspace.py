@@ -13,11 +13,11 @@
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details. 
+# General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
 """
@@ -25,12 +25,15 @@
 @license:      GNU General Public License 2.0 or later
 @contact:      awalters@volatilesystems.com
 @organization: Volatile Systems
+
+Alias for all address spaces
 """
 
-""" Alias for all address spaces """
+# pylint: disable=missing-docstring
 
 import os
 import struct
+
 
 class FileAddressSpace:
     def __init__(self, fname, mode='rb', fast=False):
@@ -39,10 +42,10 @@ class FileAddressSpace:
         self.fhandle = open(fname, mode)
         self.fsize = os.path.getsize(fname)
 
-        if fast == True:
+        if fast:
             self.fast_fhandle = open(fname, mode)
 
-    def fread(self,len):
+    def fread(self, len):
         return self.fast_fhandle.read(len)
 
     def read(self, addr, len):
@@ -51,11 +54,11 @@ class FileAddressSpace:
 
     def read_long(self, addr):
         string = self.read(addr, 4)
-        (longval, ) =  struct.unpack('L', string)
+        (longval,) = struct.unpack('L', string)
         return longval
 
     def get_address_range(self):
-        return [0,self.fsize-1]
+        return [0, self.fsize - 1]
 
     def get_available_addresses(self):
         return [self.get_address_range()]
@@ -66,9 +69,11 @@ class FileAddressSpace:
     def close(self):
         self.fhandle.close()
 
+
 # Code below written by Brendan Dolan-Gavitt
 
 BLOCK_SIZE = 0x1000
+
 
 class HiveFileAddressSpace:
     def __init__(self, fname):
@@ -84,12 +89,12 @@ class HiveFileAddressSpace:
         left_over = (length + vaddr) % BLOCK_SIZE
 
         paddr = self.vtop(vaddr)
-        if paddr == None and zero:
+        if paddr is None and zero:
             if length < first_block:
                 return "\0" * length
             else:
                 stuff_read = "\0" * first_block
-        elif paddr == None:
+        elif paddr is None:
             return None
         else:
             if length < first_block:
@@ -104,11 +109,11 @@ class HiveFileAddressSpace:
                 stuff_read = "\0" * first_block
 
         new_vaddr = vaddr + first_block
-        for i in range(0,full_blocks):
+        for __ in range(0, full_blocks):
             paddr = self.vtop(new_vaddr)
-            if paddr == None and zero:
+            if paddr is None and zero:
                 stuff_read = stuff_read + "\0" * BLOCK_SIZE
-            elif paddr == None:
+            elif paddr is None:
                 return None
             else:
                 new_stuff = self.base.read(paddr, BLOCK_SIZE)
@@ -122,9 +127,9 @@ class HiveFileAddressSpace:
 
         if left_over > 0:
             paddr = self.vtop(new_vaddr)
-            if paddr == None and zero:
+            if paddr is None and zero:
                 stuff_read = stuff_read + "\0" * left_over
-            elif paddr == None:
+            elif paddr is None:
                 return None
             else:
                 stuff_read = stuff_read + self.base.read(paddr, left_over)
@@ -132,10 +137,11 @@ class HiveFileAddressSpace:
 
     def read_long_phys(self, addr):
         string = self.base.read(addr, 4)
-        (longval, ) =  struct.unpack('L', string)
+        (longval,) = struct.unpack('L', string)
         return longval
 
     def is_valid_address(self, vaddr):
         paddr = self.vtop(vaddr)
-        if not paddr: return False
+        if not paddr:
+            return False
         return self.base.is_valid_address(paddr)
