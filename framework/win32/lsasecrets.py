@@ -67,9 +67,9 @@ def decrypt_secret(secret, key):
 
     Decrypts a block of data with DES using given key.
     Note that key can be longer than 7 bytes."""
-    decrypted_data = ''
+    decrypted_data = bytearray()
     j = 0   # key index
-    for i in range(0,len(secret),8):
+    for i in range(0, len(secret),8):
         enc_block = secret[i:i+8]
         block_key = key[j:j+7]
         des_key = str_to_key(block_key)
@@ -91,12 +91,12 @@ def decrypt_aes(secret, key):
         sha.update(secret[28:60])
     aeskey = sha.digest()
 
-    data = ""
+    data = bytearray()
     for i in range(60, len(secret), 16):
-        aes = AES.new(aeskey, AES.MODE_CBC, "\x00"*16)
+        aes = AES.new(aeskey, AES.MODE_CBC, b"\x00"*16)
         buf = secret[i : i + 16]
         if len(buf) < 16:
-            buf += (16-len(buf)) * "\00"
+            buf += (16-len(buf)) * b"\00"
 
         data += aes.decrypt(buf)
 

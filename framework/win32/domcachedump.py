@@ -44,11 +44,11 @@ def decrypt_hash_vista(edata, nlkm, ch):
     """
     aes = AES.new(nlkm[16:32], AES.MODE_CBC, ch)
 
-    out = ""
+    out = bytearray()
     for i in range(0, len(edata), 16):
         buf = edata[i : i+16]
         if len(buf) < 16:
-            buf += (16 - len(buf)) * "\00"
+            buf += (16 - len(buf)) * b"\00"
 
         out += aes.decrypt(buf)
     return out
@@ -63,9 +63,9 @@ def parse_cache_entry(cache_data):
 def parse_decrypted_cache(dec_data, uname_len,
         domain_len, domain_name_len):
     uname_off = 72
-    pad = 2 * ( ( uname_len / 2 ) % 2 )
+    pad = 2 * ( ( uname_len // 2 ) % 2 )
     domain_off = uname_off + uname_len + pad
-    pad = 2 * ( ( domain_len / 2 ) % 2 )
+    pad = 2 * ( ( domain_len // 2 ) % 2 )
     domain_name_off = domain_off + domain_len + pad
 
     hash = dec_data[:0x10]
@@ -101,7 +101,7 @@ def dump_hashes(sysaddr, secaddr, vista):
 
     hashes = []
     for v in values(cache):
-        if v.Name == "NL$Control": continue
+        if v.Name == b"NL$Control": continue
         
         data = v.space.read(v.Data.value, v.DataLength.value)
 
@@ -131,5 +131,5 @@ def dump_file_hashes(syshive_fname, sechive_fname, vista):
     secaddr = HiveFileAddressSpace(sechive_fname)
 
     for (u, d, dn, hash) in dump_hashes(sysaddr, secaddr, vista):
-        print "%s:%s:%s:%s" % (u.lower(), hash.encode('hex'),
-                               d.lower(), dn.lower())
+        print("%s:%s:%s:%s" % (u.lower(), hash.hex(),
+                               d.lower(), dn.lower()))

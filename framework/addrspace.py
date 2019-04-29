@@ -35,19 +35,19 @@ import struct
 class FileAddressSpace:
     def __init__(self, fname, mode='rb', fast=False):
         self.fname = fname
-	self.name = fname
-	self.fhandle = open(fname, mode)
+        self.name = fname
+        self.fhandle = open(fname, mode)
         self.fsize = os.path.getsize(fname)
 
-	if fast == True:
+        if fast == True:
             self.fast_fhandle = open(fname, mode)
 
     def fread(self,len):
         return self.fast_fhandle.read(len)
 
     def read(self, addr, len):
-        self.fhandle.seek(addr)        
-        return self.fhandle.read(len)    
+        self.fhandle.seek(addr)
+        return self.fhandle.read(len)
 
     def read_long(self, addr):
         string = self.read(addr, 4)
@@ -80,9 +80,9 @@ class HiveFileAddressSpace:
 
     def read(self, vaddr, length, zero=False):
         first_block = BLOCK_SIZE - vaddr % BLOCK_SIZE
-        full_blocks = ((length + (vaddr % BLOCK_SIZE)) / BLOCK_SIZE) - 1
+        full_blocks = ((length + (vaddr % BLOCK_SIZE)) // BLOCK_SIZE) - 1
         left_over = (length + vaddr) % BLOCK_SIZE
-        
+
         paddr = self.vtop(vaddr)
         if paddr == None and zero:
             if length < first_block:
