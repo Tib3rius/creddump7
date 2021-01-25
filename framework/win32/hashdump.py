@@ -214,8 +214,8 @@ def decrypt_single_salted_hash(rid, hbootkey, enc_hash, salt):
     if enc_hash == "":
         return ""
     (des_k1, des_k2) = sid_to_key(rid)
-    d1 = DES.new(des_k1, DES.MODE_ECB)
-    d2 = DES.new(des_k2, DES.MODE_ECB)
+    d1 = DES.new(bytes(des_k1), DES.MODE_ECB)
+    d2 = DES.new(bytes(des_k2), DES.MODE_ECB)
     cipher = AES.new(hbootkey[:16], AES.MODE_CBC, salt)
     obfkey = cipher.decrypt(enc_hash)
     return d1.decrypt(obfkey[:8]) + d2.decrypt(obfkey[8:16])
